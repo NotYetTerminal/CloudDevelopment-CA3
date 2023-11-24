@@ -60,47 +60,61 @@ def query_dates() -> list:
     return [row[0] for row in data]
 
 
-def query_swimmers(date: str) -> list:
-    SQL: str = f""" SELECT swimmer_id, name, age
+def query_swimmers(date) -> list:
+    SQL: str = f""" SELECT DISTINCT swimmers.swimmer_id, name, age
                     FROM swimmers
-                    ORDER BY name
                     INNER JOIN times ON times.swimmer_id = swimmers.swimmer_id
-                    WHERE times.ts = {date};"""
+                    WHERE times.ts = "{date}"
+                    ORDER BY name;"""
 
     with DBcm.UseDatabase(config) as db:
         db.execute(SQL)
         data: list = db.fetchall()
 
-    return [[date + "-" + str(row[0]), row[1] + "-" + str(row[2])] for row in data]
+    return [[date + ";" + str(row[0]), row[1] + "-" + str(row[2])] for row in data]
 
 
-def query_events(date: str, swimmer_id: int) -> list:
-    SQL: str = f""" SELECT event_id, distance, stroke
+def query_events(date, swimmer_id: int) -> list:
+    SQL: str = f""" SELECT DISTINCT events.event_id, distance, stroke
                     FROM events
-                    ORDER BY distance
                     INNER JOIN times ON times.event_id = events.event_id
                     INNER JOIN swimmers ON swimmers.swimmer_id = times.swimmer_id
-                    WHERE times.ts = {date} AND times.swimmer_id = {swimmer_id};"""
+                    WHERE times.ts = "{date}" AND times.swimmer_id = {swimmer_id}
+                    ORDER BY distance;"""
 
     with DBcm.UseDatabase(config) as db:
         db.execute(SQL)
         data: list = db.fetchall()
 
     return [
-        [date + "-" + str(swimmer_id) + "-" + str(row[0]), row[1] + "-" + str(row[2])]
+        [date + ";" + str(swimmer_id) + ";" + str(row[0]), row[1] + "-" + str(row[2])]
         for row in data
     ]
 
 
-def query_times(date: str, swimmer_id: int, event_id: int) -> list:
+def query_times(date, swimmer_id: int, event_id: int) -> list:
     SQL: str = f""" SELECT time
                     FROM times
                     INNER JOIN events ON events.event_id = times.event_id 
                     INNER JOIN swimmers ON swimmers.swimmer_id = times.swimmer_id
-                    WHERE times.ts = {date} AND times.swimmer_id = {swimmer_id} AND times.event_id = {event_id};"""
+                    WHERE times.ts = "{date}" AND times.swimmer_id = {swimmer_id} AND times.event_id = {event_id};"""
 
     with DBcm.UseDatabase(config) as db:
         db.execute(SQL)
         data: list = db.fetchall()
 
     return data
+
+
+def query_other_data(swimmer_id: int, event_id: int) -> tuple:
+    SQL: str = f""" SELECT DISTINCT name, age, distance, stroke
+                    FROM times
+                    INNER JOIN events ON events.event_id = times.event_id 
+                    INNER JOIN swimmers ON swimmers.swimmer_id = times.swimmer_id
+                    WHERE times.swimmer_id = {swimmer_id} AND times.event_id = {event_id};"""
+
+    with DBcm.UseDatabase(config) as db:
+        db.execute(SQL)
+        data: list = db.fetchall()
+
+    return data[0]

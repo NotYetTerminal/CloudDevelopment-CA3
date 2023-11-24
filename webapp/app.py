@@ -23,7 +23,7 @@ def select_swim_date():
     )
 
 
-@app.get("/getswimmers")
+@app.post("/getswimmers")
 def get_swimmers_names():
     chosen_date: str = request.form["select_data"]
     swimmers: list = swim_utils.query_swimmers(chosen_date)
@@ -39,7 +39,7 @@ def get_swimmers_names():
 
 @app.post("/displayevents")
 def get_swimmer_events():
-    date, swimmer_id = request.form["select_data"].split("-")
+    date, swimmer_id = request.form["select_data"].split(";")
     events: list = swim_utils.query_events(date, int(swimmer_id))
 
     return render_template(
@@ -53,18 +53,27 @@ def get_swimmer_events():
 
 @app.post("/chart")
 def display_chart():
-    date, swimmer_id, event_id = request.form["select_data"].split("-")
-    times: list = swim_utils.query_events(date, int(swimmer_id), int(event_id))
-
-    converts: list = [
-        swim_utils.convert2hundreths(x.removeprefix("00:")) for x in times
+    date, swimmer_id, event_id = request.form["select_data"].split(";")
+    times: list = [
+        str(x[0])
+        .removeprefix("0:")
+        .removeprefix("0")
+        .removeprefix("0:")
+        .removesuffix("0000")
+        for x in swim_utils.query_times(date, int(swimmer_id), int(event_id))
     ]
-    average: str = swim_utils.build_time_string(mean(converts))
+
+    converts: list = [swim_utils.convert2hundreths(x) for x in times]
+    the_average: str = swim_utils.build_time_string(swim_utils.mean(converts))
 
     converts.reverse()
     times.reverse()
 
-    the_title = f"{name} (Under {age}) {distance} {stroke}"
+    other_data: tuple = swim_utils.query_other_data(int(swimmer_id), int(event_id))
+
+    the_title = (
+        f"{other_data[0]} (Under {other_data[1]}) {other_data[2]} {other_data[3]}"
+    )
     from_max = max(converts) + 50
     the_converts = [hfpy_utils.convert2range(n, 0, from_max, 0, 350) for n in converts]
 
