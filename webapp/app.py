@@ -2,17 +2,8 @@ from flask import Flask, render_template, request  # from module import Class.
 
 
 import os
-import DBcm
 import hfpy_utils
 import swim_utils
-
-
-config = {
-    "user": "swimuser",
-    "password": "swimuserpasswd",
-    "database": "SwimclubDB",
-    "host": "localhost",
-}
 
 
 app = Flask(__name__)
@@ -21,8 +12,7 @@ app = Flask(__name__)
 @app.get("/")
 @app.get("/selectdate")
 def select_swim_date():
-    convert2hundreths(3)
-    dates: list = [(x.split(" ")[0], x) for x in query_dates()]
+    dates: list = [(x, x.strftime("%Y-%m-%d")) for x in swim_utils.query_dates()]
 
     return render_template(
         "select.html",
@@ -36,7 +26,7 @@ def select_swim_date():
 @app.get("/getswimmers")
 def get_swimmers_names():
     chosen_date: str = request.form["select_data"]
-    swimmers: list = query_swimmers(chosen_date)
+    swimmers: list = swim_utils.query_swimmers(chosen_date)
 
     return render_template(
         "select.html",
@@ -50,7 +40,7 @@ def get_swimmers_names():
 @app.post("/displayevents")
 def get_swimmer_events():
     date, swimmer_id = request.form["select_data"].split("-")
-    events: list = query_events(date, int(swimmer_id))
+    events: list = swim_utils.query_events(date, int(swimmer_id))
 
     return render_template(
         "select.html",
@@ -64,10 +54,12 @@ def get_swimmer_events():
 @app.post("/chart")
 def display_chart():
     date, swimmer_id, event_id = request.form["select_data"].split("-")
-    times: list = query_events(date, int(swimmer_id), int(event_id))
+    times: list = swim_utils.query_events(date, int(swimmer_id), int(event_id))
 
-    converts: list = [convert2hundreths(x.removeprefix("00:")) for x in times]
-    average: str = build_time_string(mean(converts))
+    converts: list = [
+        swim_utils.convert2hundreths(x.removeprefix("00:")) for x in times
+    ]
+    average: str = swim_utils.build_time_string(mean(converts))
 
     converts.reverse()
     times.reverse()

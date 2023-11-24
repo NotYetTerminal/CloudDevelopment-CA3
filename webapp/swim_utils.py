@@ -1,6 +1,7 @@
 from statistics import mean
 
 
+import DBcm
 import hfpy_utils
 
 
@@ -42,13 +43,21 @@ def get_swimmers_data(filename):
     return name, age, distance, stroke, times, converts, average
 
 
+config = {
+    "user": "swimuser",
+    "password": "swimuserpasswd",
+    "database": "SwimclubDB",
+    "host": "localhost",
+}
+
+
 def query_dates() -> list:
     SQL: str = f""" SELECT DISTINCT ts FROM times;"""
     with DBcm.UseDatabase(config) as db:
         db.execute(SQL)
         data: list = db.fetchall()
 
-    return data
+    return [row[0] for row in data]
 
 
 def query_swimmers(date: str) -> list:
