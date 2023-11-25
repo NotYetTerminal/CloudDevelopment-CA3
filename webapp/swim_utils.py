@@ -47,12 +47,23 @@ def get_swimmers_data(filename):
     return name, age, distance, stroke, times, converts, average
 
 
-config = {
-    "user": "swimuser",
-    "password": "swimuserpasswd",
-    "database": "SwimclubDB",
-    "host": "localhost",
-}
+import platform
+
+
+if "aws" in platform.uname().release:
+    config = {
+        "user": "C00271548B",
+        "password": "swimuserpasswd",
+        "database": "C00271548B$default",
+        "host": "C00271548B.mysql.pythonanywhere-services.com",
+    }
+else:
+    config = {
+        "user": "swimuser",
+        "password": "swimuserpasswd",
+        "database": "SwimclubDB",
+        "host": "localhost",
+    }
 
 
 def query_dates() -> list:
