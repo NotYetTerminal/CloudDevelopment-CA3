@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+
+{% block body %}
+
+    {% for data in data_list %}
+
+        <form method="POST">
+            <label for="{{ data[0] }}">{{ data[1] }}</label>
+
+            <select name="{{ data[0] }}" id="{{ data[0] }}" hx-get="/{{ data[3] }}" hx-target="#{{ data[3] }}">
+
+                {% for select_data in data[2] %}
+
+                    <option value="{{ select_data[0] }}">{{ select_data[1] }}</option>
+                
+                {% endfor %}
+
+            </select>
+        </form>
+    
+    {% endfor %}
+
+    <div name="chart" id="chart">
+
+    </div>
+
+{% endblock %}

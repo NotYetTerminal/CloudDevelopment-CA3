@@ -12,7 +12,11 @@ def convert2hundreths(timestring):
     """
     if ":" in timestring:
         mins, rest = timestring.split(":")
-        secs, hundredths = rest.split(".")
+        if "." in rest:
+            secs, hundredths = rest.split(".")
+        else:
+            secs = rest
+            hundredths = 0
     else:
         mins = 0
         secs, hundredths = timestring.split(".")

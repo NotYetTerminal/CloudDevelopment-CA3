@@ -1,15 +1,11 @@
-{% extends "base.html" %}
+<h3>{{ chart_title }}</h3>
 
+{% for c, t in chart_data %}
 
-    {% block body %}
-   
-        {% for c, t in data %}
+    <svg height="30" width="400">
+        <rect height="30" width="{{ c }}" style="fill:rgb(0,0,255);" />
+    </svg>{{ t }}<br />
 
-            <svg height="30" width="400">
-                <rect height="30" width="{{ c }}" style="fill:rgb(0,0,255);" />
-            </svg>{{ t }}<br />
-        
-        {% endfor %}
+{% endfor %}
 
-        <p>Average time: {{ average }}</p>
-    {% endblock %}
+<p>Average time: {{ average }}</p>
